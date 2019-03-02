@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+  <style>
+    body{
+      background-color: rgb(164, 168, 161)
+    }
+    #stage {
+      width: 500px;
+      height: 500px;
+      margin: 0 auto;
+      position: relative;
+      border: 1px solid black;
+      background-color: #000
+    }
+
+    .bullet {
+      position: absolute;
+      width: 16px;
+      height: 16px;
+      background-image: url(./src/bullet.gif);
+      background-size: contain;
+    }
+    .bullet-boom{
+      background-image: url(./src/boom004.png);
+    }
+
+    .tank {
+      position: absolute;
+      width: 30px;
+      height: 30px;
+      background-image: url(./src/tank.gif);
+      background-size: contain;
+    }
+
+    .tank-red {
+      background-image: url(./src/tank-red.gif);
+    }
+
+    .dir-37 {
+      transform: rotate(-90deg)
+    }
+
+    .dir-38 {
+      transform: rotate(0deg)
+    }
+
+    .dir-39 {
+      transform: rotate(90deg)
+    }
+
+    .dir-40 {
+      transform: rotate(180deg)
+    }
+  </style>
+</head>
+
+<body>
+  <div id="stage">
+
+  </div>
+</body>
+<script src="./tank.js"></script>
+
+</html>
