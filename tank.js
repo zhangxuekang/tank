@@ -17,7 +17,7 @@ const Type = {
 }
 const STEP = 5
 class Util {
-  constructor() { }
+  constructor() {}
   addBullet(game, buttet) {
     game.addBullet(buttet)
   }
@@ -45,23 +45,29 @@ class Util {
   }
   removeClass($e, className) {
     const cls = $e.getAttribute('class')
-    $e.setAttribute('class', cls.split(' ').filter(value => value !== className).join(' '))
+    $e.setAttribute(
+      'class',
+      cls
+        .split(' ')
+        .filter(value => value !== className)
+        .join(' ')
+    )
   }
 
   changePosition($e, dir, step = STEP) {
     const { x, y } = this.getInfo($e)
     switch (dir) {
       case Direction.UP:
-        $e.style.top = y - STEP + 'px'
+        $e.style.top = y - step + 'px'
         break
       case Direction.DOWN:
-        $e.style.top = y + STEP + 'px'
+        $e.style.top = y + step + 'px'
         break
       case Direction.LEFT:
-        $e.style.left = x - STEP + 'px'
+        $e.style.left = x - step + 'px'
         break
       case Direction.RIGHT:
-        $e.style.left = x + STEP + 'px'
+        $e.style.left = x + step + 'px'
         break
     }
   }
@@ -87,7 +93,12 @@ class Util {
     const infoIn = this.getInfo($inside)
     const infoOver = this.getInfo($over)
     const { x, y, width, height } = infoIn
-    if (x > 0 && y > 0 && x + width < infoOver.width && y + height < infoOver.height) {
+    if (
+      x > 0 &&
+      y > 0 &&
+      x + width < infoOver.width &&
+      y + height < infoOver.height
+    ) {
       return true
     } else {
       return false
@@ -98,7 +109,12 @@ class Util {
     const infoIn = this.getInfo($inside)
     const infoOver = this.getInfo($over)
     const { x, y, width, height } = infoIn
-    if (x > 5 && y > 5 && x + width < infoOver.width - 5 && y + height < infoOver.height - 5) {
+    if (
+      x > 5 &&
+      y > 5 &&
+      x + width < infoOver.width - 5 &&
+      y + height < infoOver.height - 5
+    ) {
       return false
     } else {
       return true
@@ -113,13 +129,15 @@ class Util {
       a: [infoA.x, infoA.y],
       b: [infoA.x + infoA.width, infoA.y],
       c: [infoA.x + infoA.width, infoA.y + infoA.height],
-      d: [infoA.x, infoA.y + infoA.height],
+      d: [infoA.x, infoA.y + infoA.height]
     }
-    const points = [[infoB.x, infoB.y],
-    [infoB.x + infoB.width, infoB.y],
-    [infoB.x + infoB.width, infoB.y + infoB.height],
-    [infoB.x, infoB.y + infoB.height]]
-    points.forEach((point) => {
+    const points = [
+      [infoB.x, infoB.y],
+      [infoB.x + infoB.width, infoB.y],
+      [infoB.x + infoB.width, infoB.y + infoB.height],
+      [infoB.x, infoB.y + infoB.height]
+    ]
+    points.forEach(point => {
       if (this._isIn(infoA_point, point)) {
         overlap = true
       }
@@ -129,10 +147,10 @@ class Util {
   }
   _isIn(area, point) {
     if (
-      point[0] > area.a[0]
-      && point[0] < area.b[0]
-      && point[1] > area.a[1]
-      && point[1] < area.d[1]
+      point[0] > area.a[0] &&
+      point[0] < area.b[0] &&
+      point[1] > area.a[1] &&
+      point[1] < area.d[1]
     ) {
       return true
     } else {
@@ -162,7 +180,7 @@ class Bullet {
     if (this.isAlive() && this.alive) {
       setTimeout(() => {
         this.move()
-      }, 10)
+      }, 20)
     } else {
       if (this.$killTank) {
         this.$stage.removeChild(this.$killTank)
@@ -178,8 +196,11 @@ class Bullet {
   isKillTank() {
     let isKill = false
     const $tanks = document.querySelectorAll('.tank')
-    Array.prototype.slice.call($tanks).forEach(($tank) => {
-      if (util.isOverlap($tank, this.$e) && !$tank.getAttribute('class').includes(this.type)) {
+    Array.prototype.slice.call($tanks).forEach($tank => {
+      if (
+        util.isOverlap($tank, this.$e) &&
+        !$tank.getAttribute('class').includes(this.type)
+      ) {
         isKill = true
         this.$killTank = $tank
       }
@@ -208,30 +229,47 @@ class Tank {
     this.type = type
     this.$stage = document.querySelector('#stage')
     this.$e = document.createElement('div')
-    this.$e.setAttribute('class', `tank tank-${type} tank-${number} dir-${this.direction}`)
+    this.$e.setAttribute(
+      'class',
+      `tank tank-${type} tank-${number} dir-${this.direction}`
+    )
     this.$e.style.left = x + 'px'
     this.$e.style.top = y + 'px'
     this.$stage.appendChild(this.$e)
     this.shoot = this.shoot.bind(this)
     this.handleKeyDown = this.handleKeyDown.bind(this)
+    this.handleKeyUp = this.handleKeyUp.bind(this)
     this.handleClick = this.handleClick.bind(this)
+    this.isMove = false
+    this.moveTime = null
     if (npc) {
       this.auto()
     } else {
       window.addEventListener('keydown', this.handleKeyDown)
+      window.addEventListener('keyup', this.handleKeyUp)
       window.addEventListener('click', this.handleClick)
+      this.moveTime = setInterval(() => {
+        if (document.querySelector('.tank-' + this.number)) {
+          if (this.isMove) {
+            this.move()
+          }
+        } else {
+          clearInterval(this.moveTime)
+        }
+      }, 50)
     }
   }
 
   auto() {
     if (!document.querySelector('.tank-' + this.number)) {
+      this.alive = false
       return
     }
     const random = Math.random() * 10
     const random2 = Math.floor(Math.random() * 4)
-    if (random <= 0.3) {
+    if (random <= 0.2) {
       this.shoot()
-    } else if (random > 0.5 && random <= 1) {
+    } else if (random > 0.8 && random <= 1) {
       this.turn(Direction[Object.keys(Direction)[random2]])
     } else {
       if (this.isWarn()) {
@@ -243,7 +281,7 @@ class Tank {
     }
     setTimeout(() => {
       this.auto()
-    }, 100)
+    }, 20)
   }
 
   handleClick(e) {
@@ -261,7 +299,23 @@ class Tank {
       const directions = Object.keys(Direction).map(key => Direction[key])
       if (directions.includes(keyCode)) {
         this.turn(keyCode)
-        this.move()
+        this.isMove = true
+      }
+      if (keyCode == ShootCode) {
+        this.handleClick()
+      }
+    } else {
+      window.removeEventListener('keydown', this.handleKeyDown)
+      window.removeEventListener('click', this.handleClick)
+    }
+  }
+
+  handleKeyUp(e) {
+    if (document.querySelector('.tank-' + this.number)) {
+      const keyCode = e.keyCode
+      const directions = Object.keys(Direction).map(key => Direction[key])
+      if (directions.includes(keyCode)) {
+        this.isMove = false
       }
     } else {
       window.removeEventListener('keydown', this.handleKeyDown)
@@ -276,7 +330,10 @@ class Tank {
   turn(dir) {
     this.direction = dir
     const tankClass = this.$e.getAttribute('class')
-    this.$e.setAttribute('class', tankClass.replace(/dir-\d+/, 'dir-' + this.direction))
+    this.$e.setAttribute(
+      'class',
+      tankClass.replace(/dir-\d+/, 'dir-' + this.direction)
+    )
   }
 
   shoot() {
@@ -332,28 +389,14 @@ class Tank {
 const util = new Util()
 class Game {
   constructor() {
+    this.number = 0
     this.tanks = [
-      new Tank({ x: 230, y: 230 }, Type.RED, 0, Direction.DOWN, NPC),
-      new Tank({ x: 230, y: 230 }, Type.RED, 1, Direction.DOWN, NPC),
-      new Tank({ x: 230, y: 230 }, Type.RED, 2, Direction.DOWN, NPC),
-      new Tank({ x: 230, y: 230 }, Type.RED, 3, Direction.DOWN, NPC),
-      new Tank({ x: 230, y: 230 }, Type.RED, 4, Direction.DOWN, NPC),
-      new Tank({ x: 230, y: 230 }, Type.RED, 5, Direction.DOWN, NPC),
-      new Tank({ x: 230, y: 230 }, Type.RED, 6, Direction.DOWN, NPC),
-      new Tank({ x: 230, y: 230 }, Type.RED, 7, Direction.DOWN, NPC),
-      new Tank({ x: 230, y: 230 }, Type.RED, 8, Direction.DOWN, NPC),
-      new Tank({ x: 230, y: 230 }, Type.RED, 9, Direction.DOWN, NPC),
-      new Tank({ x: 230, y: 230 }, Type.RED, 10, Direction.DOWN, NPC),
-      new Tank({ x: 230, y: 230 }, Type.RED, 11, Direction.DOWN, NPC),
-      new Tank({ x: 230, y: 230 }, Type.RED, 12, Direction.DOWN, NPC),
-      new Tank({ x: 230, y: 230 }, Type.RED, 13, Direction.DOWN, NPC),
-      new Tank({ x: 230, y: 230 }, Type.RED, 14, Direction.DOWN, NPC),
-      new Tank({ x: 230, y: 230 }, Type.RED, 15, Direction.DOWN, NPC),
-      new Tank({ x: 230, y: 230 }, Type.RED, 16, Direction.DOWN, NPC),
-      new Tank({ x: 230, y: 230 }, Type.RED, 17, Direction.DOWN, NPC),
-      new Tank({ x: 230, y: 230 }, Type.RED, 18, Direction.DOWN, NPC),
-      new Tank({ x: 230, y: 230 }, Type.RED, 19, Direction.DOWN, NPC),
-      new Tank({ x: 230, y: 230 }, Type.RED, 20, Direction.DOWN, NPC),
+      new Tank({ x: 400, y: 400 }, Type.BLUE, this.number++, Direction.DOWN),
+      new Tank({ x: 30, y: 10 }, Type.RED, this.number++, Direction.DOWN, NPC),
+      new Tank({ x: 130, y: 10 }, Type.RED, this.number++, Direction.DOWN, NPC),
+      new Tank({ x: 230, y: 10 }, Type.RED, this.number++, Direction.DOWN, NPC),
+      new Tank({ x: 330, y: 10 }, Type.RED, this.number++, Direction.DOWN, NPC),
+      new Tank({ x: 430, y: 10 }, Type.RED, this.number++, Direction.DOWN, NPC),
     ]
     this.bullets = []
     this.collect()
@@ -377,6 +420,9 @@ class Game {
     }
     if (hasTanks || hasBullets) {
       setTimeout(() => {
+        if (this.tanks.length <= 5) {
+          this.addTank(new Tank({ x: 20, y: 20 }, Type.RED, this.number++, Direction.DOWN, NPC))
+        }
         this.collect()
       }, 10)
     } else {
@@ -390,8 +436,5 @@ class Game {
       }
     }
   }
-
 }
 const game = new Game()
-
-
